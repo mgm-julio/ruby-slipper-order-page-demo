@@ -198,34 +198,34 @@ watch(
             <div class="flex-shrink-0 mt-auto">
               <VCard class="mb-2 mb-md-2" color="warning" variant="tonal">
                 <VCardText class="pa-2 pa-md-2">
-                <div class="d-flex align-center justify-space-between mb-1">
-                  <span
-                    class="text-body-1 text-md-h6 font-weight-medium text-high-emphasis"
-                    >Subtotal</span
-                  >
-                  <span
-                    class="text-body-1 text-md-h6 font-weight-medium text-high-emphasis"
-                    >${{ subtotal.toFixed(2) }}</span
-                  >
-                </div>
-                <VDivider class="my-1" />
-                <div class="d-flex align-center justify-space-between mt-1">
-                  <span
-                    class="text-h6 text-md-h5 font-weight-bold text-high-emphasis"
-                    >Total</span
-                  >
-                  <span
-                    class="text-h5 text-md-h4 font-weight-bold text-high-emphasis"
-                  >
-                    ${{ paymentAmount.toFixed(2) }}
-                  </span>
-                </div>
+                  <div class="d-flex align-center justify-space-between mb-1">
+                    <span
+                      class="text-body-1 text-md-h6 font-weight-medium text-high-emphasis"
+                      >Subtotal</span
+                    >
+                    <span
+                      class="text-body-1 text-md-h6 font-weight-medium text-high-emphasis"
+                      >${{ subtotal.toFixed(2) }}</span
+                    >
+                  </div>
+                  <VDivider class="my-1" />
+                  <div class="d-flex align-center justify-space-between mt-1">
+                    <span
+                      class="text-h6 text-md-h5 font-weight-bold text-high-emphasis"
+                      >Total</span
+                    >
+                    <span
+                      class="text-h5 text-md-h4 font-weight-bold text-high-emphasis"
+                    >
+                      ${{ paymentAmount.toFixed(2) }}
+                    </span>
+                  </div>
                 </VCardText>
               </VCard>
 
               <VCard elevation="2">
                 <VCardText class="pa-2 pa-md-2">
-                  <div class="d-flex align-center gap-3 text-body-1 text-md-h6">
+                  <div class="d-flex align-center gap-3 text-h6 text-md-h5">
                     <VIcon
                       icon="tabler-phone"
                       :size="$vuetify.display.smAndDown ? 22 : 26"
@@ -265,7 +265,7 @@ watch(
                   :size="$vuetify.display.smAndDown ? 28 : 32"
                   :color="currentStep === 0 ? 'warning' : 'success'"
                 />
-                <h4 class="text-h5 text-md-h6 mb-0 font-weight-bold">
+                <h4 class="text-h4 text-md-h5 mb-0 font-weight-bold">
                   {{
                     currentStep === 0
                       ? 'Complete Your Payment'
@@ -273,7 +273,7 @@ watch(
                   }}
                 </h4>
               </div>
-              <p class="text-body-2 text-md-body-2 text-medium-emphasis">
+              <p class="text-body-1 text-md-h6 text-medium-emphasis">
                 {{
                   currentStep === 0
                     ? 'Enter your payment details to complete your order'

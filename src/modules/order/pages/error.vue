@@ -71,10 +71,10 @@ const notes = computed(() => {
             color="error"
             class="mb-3"
           />
-          <h2 class="text-h4 text-md-h3 mb-2 font-weight-bold">
+          <h2 class="text-h3 text-md-h2 mb-2 font-weight-bold">
             Payment Denied
           </h2>
-          <p class="text-body-1 text-md-h6 text-medium-emphasis">
+          <p class="text-h6 text-md-h5 text-medium-emphasis">
             Your payment could not be processed
           </p>
         </div>
@@ -84,22 +84,22 @@ const notes = computed(() => {
         <VCard class="text-start mb-3" elevation="2">
           <VCardText class="pa-3">
             <div class="d-flex align-center justify-space-between mb-3">
-              <span class="text-body-1 text-md-h6 font-weight-medium"
+              <span class="text-h6 text-md-h5 font-weight-medium"
                 >Order ID:</span
               >
-              <span class="text-body-1 text-md-h6 font-weight-bold">{{
+              <span class="text-h6 text-md-h5 font-weight-bold">{{
                 orderId || 'N/A'
               }}</span>
             </div>
             <VDivider class="my-2" />
             <div class="d-flex align-center justify-space-between mb-3 mt-3">
-              <span class="text-body-1 text-md-h6 font-weight-medium">Status:</span>
-              <VChip color="error" size="small">{{ status || 'error' }}</VChip>
+              <span class="text-h6 text-md-h5 font-weight-medium">Status:</span>
+              <VChip color="error" size="default">{{ status || 'error' }}</VChip>
             </div>
             <VDivider class="my-2" />
             <div class="d-flex align-center justify-space-between mt-3">
-              <span class="text-body-1 text-md-h6 font-weight-medium">Amount:</span>
-              <span class="text-h6 text-md-h5 font-weight-bold text-warning"
+              <span class="text-h6 text-md-h5 font-weight-medium">Amount:</span>
+              <span class="text-h5 text-md-h4 font-weight-bold text-warning"
                 >${{ paymentAmount }}</span
               >
             </div>
@@ -110,18 +110,18 @@ const notes = computed(() => {
           <VCardText class="pa-3">
             <div class="d-flex align-center gap-2 mb-2">
               <VIcon icon="tabler-note" :size="$vuetify.display.smAndDown ? 20 : 24" color="warning" />
-              <span class="text-body-1 text-md-h6 font-weight-bold"
+              <span class="text-h6 text-md-h5 font-weight-bold"
                 >Order Notes:</span
               >
             </div>
-            <p class="text-body-2 text-md-body-1 text-start">{{ notes }}</p>
+            <p class="text-body-1 text-md-h6 text-start">{{ notes }}</p>
           </VCardText>
         </VCard>
 
         <VDivider class="my-4" />
 
         <div class="mb-0">
-          <p class="text-body-2 text-md-body-1 text-medium-emphasis mb-3">
+          <p class="text-body-1 text-md-h6 text-medium-emphasis mb-3">
             Please verify your card details and try again.
           </p>
           <VBtn

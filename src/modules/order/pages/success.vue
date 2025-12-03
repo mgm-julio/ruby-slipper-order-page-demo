@@ -85,10 +85,10 @@ const notes = computed(() => {
             color="success"
             class="mb-3"
           />
-          <h2 class="text-h4 text-md-h3 mb-2 font-weight-bold">
+          <h2 class="text-h3 text-md-h2 mb-2 font-weight-bold">
             Payment Accepted
           </h2>
-          <p class="text-body-1 text-md-h6 text-medium-emphasis">
+          <p class="text-h6 text-md-h5 text-medium-emphasis">
             Your payment has been successfully processed
           </p>
         </div>
@@ -98,28 +98,24 @@ const notes = computed(() => {
         <VCard class="text-start mb-3" elevation="2">
           <VCardText class="pa-3">
             <div class="d-flex align-center justify-space-between mb-3">
-              <span class="text-body-1 text-md-h6 font-weight-medium"
+              <span class="text-h6 text-md-h5 font-weight-medium"
                 >Order ID:</span
               >
-              <span class="text-body-1 text-md-h6 font-weight-bold">{{
+              <span class="text-h6 text-md-h5 font-weight-bold">{{
                 orderId || 'N/A'
               }}</span>
             </div>
             <VDivider class="my-2" />
             <div class="d-flex align-center justify-space-between mb-3 mt-3">
-              <span class="text-body-1 text-md-h6 font-weight-medium"
-                >Status:</span
-              >
-              <VChip color="success" size="small">{{
+              <span class="text-h6 text-md-h5 font-weight-medium">Status:</span>
+              <VChip color="success" size="default">{{
                 status || 'success'
               }}</VChip>
             </div>
             <VDivider class="my-2" />
             <div class="d-flex align-center justify-space-between mt-3">
-              <span class="text-body-1 text-md-h6 font-weight-medium"
-                >Amount:</span
-              >
-              <span class="text-h6 text-md-h5 font-weight-bold text-warning"
+              <span class="text-h6 text-md-h5 font-weight-medium">Amount:</span>
+              <span class="text-h5 text-md-h4 font-weight-bold text-warning"
                 >${{ paymentAmount }}</span
               >
             </div>
@@ -134,7 +130,7 @@ const notes = computed(() => {
               :size="$vuetify.display.smAndDown ? 24 : 28"
               color="warning"
             />
-            <span class="text-body-1 text-md-h6 font-weight-bold"
+            <span class="text-h6 text-md-h5 font-weight-bold"
               >Order Items:</span
             >
           </div>
@@ -152,7 +148,7 @@ const notes = computed(() => {
                 <div class="d-flex align-start justify-space-between">
                   <div class="flex-grow-1 pe-3">
                     <div
-                      class="d-flex align-center gap-2 text-body-2 text-md-body-1 font-weight-bold mb-1"
+                      class="d-flex align-center gap-2 text-body-1 text-md-h6 font-weight-bold mb-1"
                     >
                       <VIcon
                         icon="tabler-tools-kitchen-2"
@@ -161,9 +157,7 @@ const notes = computed(() => {
                       />
                       <span class="text-wrap">{{ item.name }}</span>
                     </div>
-                    <div
-                      class="text-body-2 text-md-body-2 text-medium-emphasis"
-                    >
+                    <div class="text-body-1 text-md-h6 text-medium-emphasis">
                       {{ item.quantity }} × ${{
                         (item.itemTotal / item.quantity).toFixed(2)
                       }}
@@ -176,7 +170,7 @@ const notes = computed(() => {
                     </div>
                   </div>
                   <div
-                    class="text-body-1 text-md-h6 font-weight-bold flex-shrink-0 text-warning"
+                    class="text-h6 text-md-h5 font-weight-bold flex-shrink-0 text-warning"
                   >
                     ${{ item.itemTotal.toFixed(2) }}
                   </div>
@@ -194,17 +188,17 @@ const notes = computed(() => {
                 :size="$vuetify.display.smAndDown ? 20 : 24"
                 color="warning"
               />
-              <span class="text-body-1 text-md-h6 font-weight-bold"
+              <span class="text-h6 text-md-h5 font-weight-bold"
                 >Order Notes:</span
               >
             </div>
-            <p class="text-body-2 text-md-body-1 text-start">{{ notes }}</p>
+            <p class="text-body-1 text-md-h6 text-start">{{ notes }}</p>
           </VCardText>
         </VCard>
 
         <VDivider class="my-4" />
 
-        <p class="text-body-2 text-md-body-1 text-medium-emphasis">
+        <p class="text-body-1 text-md-h6 text-medium-emphasis">
           You will receive an SMS confirmation with your order details.
         </p>
       </VCardText>

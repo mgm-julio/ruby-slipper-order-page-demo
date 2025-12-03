@@ -235,7 +235,7 @@ const nextStep = async () => {
                 <div class="app-text-field flex-grow-1">
                   <VLabel
                     for="card-number"
-                    class="mb-1 text-body-2 text-md-body-2 text-wrap font-weight-medium"
+                    class="mb-1 text-body-1 text-md-h6 text-wrap font-weight-medium"
                     style="line-height: 15px"
                   >
                     Card Information
@@ -269,7 +269,7 @@ const nextStep = async () => {
                 <div class="app-text-field flex-grow-1">
                   <VLabel
                     for="card-expiry"
-                    class="mb-1 text-body-2 text-md-body-2 text-wrap font-weight-medium"
+                    class="mb-1 text-body-1 text-md-h6 text-wrap font-weight-medium"
                     style="line-height: 15px"
                   >
                     Expiry Date
@@ -294,7 +294,7 @@ const nextStep = async () => {
                 <div class="app-text-field flex-grow-1">
                   <VLabel
                     for="card-cvv"
-                    class="mb-1 text-body-2 text-md-body-2 text-wrap font-weight-medium"
+                    class="mb-1 text-body-1 text-md-h6 text-wrap font-weight-medium"
                     style="line-height: 15px"
                   >
                     CVC <span class="text-error ms-1">*</span>
@@ -334,7 +334,7 @@ const nextStep = async () => {
                 <div class="app-text-field flex-grow-1">
                   <VLabel
                     for="card-name"
-                    class="mb-1 text-body-2 text-md-body-2 text-wrap font-weight-medium"
+                    class="mb-1 text-body-1 text-md-h6 text-wrap font-weight-medium"
                     style="line-height: 15px"
                   >
                     Cardholder Name <span class="text-error ms-1">*</span>
@@ -361,7 +361,7 @@ const nextStep = async () => {
                 :size="$vuetify.display.smAndDown ? 20 : 24"
                 color="warning"
               />
-              <span class="text-body-2 text-md-body-2 font-weight-medium"
+              <span class="text-body-1 text-md-h6 font-weight-medium"
                 >Order Notes (Optional)</span
               >
             </div>
@@ -383,14 +383,12 @@ const nextStep = async () => {
               color="warning"
             >
               <template #label>
-                <span class="text-body-2 text-md-body-2">
+                <span class="text-body-1 text-md-h6">
                   Save my data for a faster checkout process
                 </span>
               </template>
             </VCheckbox>
-            <p
-              class="text-body-2 text-md-body-2 mt-1 ms-8 text-medium-emphasis"
-            >
+            <p class="text-body-1 text-md-h6 mt-1 ms-8 text-medium-emphasis">
               Pay securely on this website and in all stores that accept this
               payment method.
             </p>
@@ -400,13 +398,11 @@ const nextStep = async () => {
             <VCardText class="pa-2 pa-md-3">
               <div class="d-flex align-center justify-space-between mb-2">
                 <div>
-                  <div
-                    class="text-body-2 text-md-body-2 mb-1 text-high-emphasis"
-                  >
+                  <div class="text-body-1 text-md-h6 mb-1 text-high-emphasis">
                     Total to Pay
                   </div>
                   <div
-                    class="text-h6 text-md-h5 font-weight-bold text-high-emphasis"
+                    class="text-h5 text-md-h4 font-weight-bold text-high-emphasis"
                   >
                     ${{ prop.checkoutData.orderAmount.toFixed(2) }}
                   </div>
