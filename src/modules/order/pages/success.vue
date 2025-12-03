@@ -39,12 +39,12 @@ const notes = computed(() => {
         <div class="mb-6">
           <VIcon
             icon="tabler-circle-check"
-            size="80"
+            size="100"
             color="success"
             class="mb-4"
           />
-          <h2 class="text-h3 text-md-h2 mb-2">Pago Aceptado</h2>
-          <p class="text-body-1 text-medium-emphasis">
+          <h2 class="text-h2 text-md-h1 mb-2">Pago Aceptado</h2>
+          <p class="text-h6 text-md-h5 text-medium-emphasis">
             Tu pago ha sido procesado exitosamente
           </p>
         </div>
@@ -52,27 +52,31 @@ const notes = computed(() => {
         <VDivider class="my-6" />
 
         <div class="text-start mb-4">
-          <div class="d-flex align-center justify-space-between mb-3">
-            <span class="text-body-1 font-weight-medium">Order ID:</span>
-            <span class="text-body-1">{{ orderId || 'N/A' }}</span>
+          <div class="d-flex align-center justify-space-between mb-4">
+            <span class="text-h6 text-md-h5 font-weight-medium">Order ID:</span>
+            <span class="text-h6 text-md-h5">{{ orderId || 'N/A' }}</span>
           </div>
-          <div class="d-flex align-center justify-space-between mb-3">
-            <span class="text-body-1 font-weight-medium">Estado:</span>
-            <VChip color="success" size="small">{{
+          <div class="d-flex align-center justify-space-between mb-4">
+            <span class="text-h6 text-md-h5 font-weight-medium">Estado:</span>
+            <VChip color="success" size="default">{{
               status || 'success'
             }}</VChip>
           </div>
           <div class="d-flex align-center justify-space-between">
-            <span class="text-body-1 font-weight-medium">Monto:</span>
-            <span class="text-h6 font-weight-bold">${{ paymentAmount }}</span>
+            <span class="text-h6 text-md-h5 font-weight-medium">Monto:</span>
+            <span class="text-h5 text-md-h4 font-weight-bold"
+              >${{ paymentAmount }}</span
+            >
           </div>
         </div>
 
         <div v-if="items.length > 0" class="mt-6">
           <VDivider class="mb-4" />
           <div class="d-flex align-center gap-2 mb-4">
-            <VIcon icon="tabler-shopping-cart" size="20" />
-            <span class="text-body-1 font-weight-medium">Items del pedido:</span>
+            <VIcon icon="tabler-chef-hat" size="28" />
+            <span class="text-h6 text-md-h5 font-weight-bold"
+              >Items del pedido:</span
+            >
           </div>
           <div
             class="text-start"
@@ -81,21 +85,27 @@ const notes = computed(() => {
             <div
               v-for="(item, index) in items"
               :key="index"
-              class="d-flex align-start justify-space-between mb-3"
+              class="d-flex align-start justify-space-between mb-4"
             >
               <div class="flex-grow-1 pe-2">
-                <div class="d-flex align-center gap-2 text-body-2 font-weight-medium mb-1">
-                  <VIcon icon="tabler-package" size="16" />
+                <div
+                  class="d-flex align-center gap-2 text-body-1 text-md-h6 font-weight-medium mb-2"
+                >
+                  <VIcon icon="tabler-tools-kitchen-2" size="20" />
                   <span class="text-wrap">{{ item.name }}</span>
                 </div>
-                <div class="text-body-2 text-medium-emphasis">
-                  {{ item.quantity }} × ${{ (item.itemTotal / item.quantity).toFixed(2) }}
-                  <span v-if="item.modifiers.length > 0" class="d-block">
+                <div class="text-body-1 text-md-body-1 text-medium-emphasis">
+                  {{ item.quantity }} × ${{
+                    (item.itemTotal / item.quantity).toFixed(2)
+                  }}
+                  <span v-if="item.modifiers.length > 0" class="d-block mt-1">
                     ({{ item.modifiers.map(m => m.name).join(', ') }})
                   </span>
                 </div>
               </div>
-              <div class="text-body-2 font-weight-medium flex-shrink-0">
+              <div
+                class="text-body-1 text-md-h6 font-weight-bold flex-shrink-0"
+              >
                 ${{ item.itemTotal.toFixed(2) }}
               </div>
             </div>
@@ -105,17 +115,17 @@ const notes = computed(() => {
         <div v-if="notes" class="mt-6">
           <VDivider class="mb-4" />
           <div class="d-flex align-center gap-2 mb-2">
-            <VIcon icon="tabler-note" size="20" />
-            <span class="text-body-1 font-weight-medium"
+            <VIcon icon="tabler-note" size="24" />
+            <span class="text-h6 text-md-h5 font-weight-bold"
               >Notas de la orden:</span
             >
           </div>
-          <p class="text-body-2 text-start">{{ notes }}</p>
+          <p class="text-body-1 text-md-h6 text-start">{{ notes }}</p>
         </div>
 
         <VDivider class="my-6" />
 
-        <p class="text-body-2 text-medium-emphasis">
+        <p class="text-body-1 text-md-h6 text-medium-emphasis">
           Recibirás un SMS de confirmación con los detalles de tu orden.
         </p>
       </VCardText>

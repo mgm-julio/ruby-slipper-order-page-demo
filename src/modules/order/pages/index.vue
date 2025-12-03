@@ -87,12 +87,12 @@ watch(
             <div class="mb-6 mb-md-8 flex-shrink-0">
               <div class="d-flex align-center gap-2 mb-2">
                 <VIcon
-                  icon="tabler-shopping-cart"
-                  :size="$vuetify.display.smAndDown ? 20 : 24"
+                  icon="tabler-chef-hat"
+                  :size="$vuetify.display.smAndDown ? 28 : 32"
                 />
-                <h4 class="text-h5 text-md-h4 mb-0">Order Summary</h4>
+                <h4 class="text-h4 text-md-h3 mb-0">Resumen del Pedido</h4>
               </div>
-              <div class="text-body-2">Order #{{ orderId }}</div>
+              <div class="text-body-1 text-md-h6">Pedido #{{ orderId }}</div>
             </div>
 
             <div
@@ -111,28 +111,28 @@ watch(
               >
                 <div class="flex-grow-1 pe-2">
                   <div
-                    class="d-flex align-center gap-2 text-body-2 text-md-body-1 font-weight-medium mb-1"
+                    class="d-flex align-center gap-2 text-body-1 text-md-h6 font-weight-medium mb-2"
                   >
                     <VIcon
-                      icon="tabler-package"
-                      :size="$vuetify.display.smAndDown ? 16 : 18"
+                      icon="tabler-tools-kitchen-2"
+                      :size="$vuetify.display.smAndDown ? 20 : 24"
                     />
                     <span class="text-wrap">{{ item.name }}</span>
                   </div>
-                  <div class="text-body-2">
+                  <div class="text-body-1 text-md-body-1 mb-1">
                     {{ item.quantity }} × ${{
                       (item.itemTotal / item.quantity).toFixed(2)
                     }}
                     <span
                       v-if="item.modifiers.length > 0"
-                      class="d-block d-md-inline"
+                      class="d-block d-md-inline ms-1"
                     >
                       ({{ item.modifiers.map(m => m.name).join(', ') }})
                     </span>
                   </div>
                 </div>
                 <div
-                  class="text-body-2 text-md-body-1 font-weight-medium flex-shrink-0"
+                  class="text-body-1 text-md-h6 font-weight-bold flex-shrink-0"
                 >
                   ${{ item.itemTotal.toFixed(2) }}
                 </div>
@@ -142,15 +142,15 @@ watch(
             <VDivider class="mb-4 flex-shrink-0" />
 
             <div class="mb-4 mb-md-6 flex-shrink-0">
-              <div class="d-flex align-center justify-space-between mb-2">
-                <span class="text-body-2">Subtotal</span>
-                <span class="text-body-2">${{ subtotal.toFixed(2) }}</span>
+              <div class="d-flex align-center justify-space-between mb-3">
+                <span class="text-body-1 text-md-h6">Subtotal</span>
+                <span class="text-body-1 text-md-h6"
+                  >${{ subtotal.toFixed(2) }}</span
+                >
               </div>
               <div class="d-flex align-center justify-space-between">
-                <span class="text-body-2 text-md-body-1 font-weight-medium"
-                  >Total</span
-                >
-                <span class="text-h5 text-md-h4 font-weight-bold">
+                <span class="text-h6 text-md-h5 font-weight-bold">Total</span>
+                <span class="text-h4 text-md-h3 font-weight-bold">
                   ${{ paymentAmount.toFixed(2) }}
                 </span>
               </div>
@@ -158,12 +158,14 @@ watch(
 
             <VDivider class="my-4 flex-shrink-0" />
 
-            <div class="d-flex align-center gap-2 text-body-2 flex-shrink-0">
+            <div
+              class="d-flex align-center gap-2 text-body-1 text-md-h6 flex-shrink-0"
+            >
               <VIcon
                 icon="tabler-phone"
-                :size="$vuetify.display.smAndDown ? 16 : 18"
+                :size="$vuetify.display.smAndDown ? 20 : 24"
               />
-              <div class="text-break">{{ phoneNumber }}</div>
+              <div class="text-break font-weight-medium">{{ phoneNumber }}</div>
             </div>
           </VCard>
         </VCol>
@@ -187,21 +189,21 @@ watch(
                       ? 'tabler-credit-card'
                       : 'tabler-circle-check'
                   "
-                  :size="$vuetify.display.smAndDown ? 20 : 24"
+                  :size="$vuetify.display.smAndDown ? 28 : 32"
                 />
-                <h4 class="text-h5 text-md-h4 mb-0">
+                <h4 class="text-h4 text-md-h3 mb-0">
                   {{
                     currentStep === 0
-                      ? 'Complete your payment'
-                      : 'Order Confirmation'
+                      ? 'Completa tu Pago'
+                      : 'Confirmación del Pedido'
                   }}
                 </h4>
               </div>
-              <p class="text-body-2">
+              <p class="text-body-1 text-md-h6">
                 {{
                   currentStep === 0
-                    ? 'Enter your payment details to complete the order'
-                    : 'Your order has been successfully processed'
+                    ? 'Ingresa los detalles de pago para completar tu pedido'
+                    : 'Tu pedido ha sido procesado exitosamente'
                 }}
               </p>
             </div>
