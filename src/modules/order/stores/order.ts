@@ -290,8 +290,8 @@ const getMockData = (): OrderQueryParams => {
     paymentAmount: subtotal,
     subtotal,
     currency: 'USD',
-    redirectUrl: 'https://agentic.io/payment/success',
-    redirectUrlError: 'https://agentic.io/payment/error',
+    redirectUrl: '',
+    redirectUrlError: '',
   }
 }
 
@@ -497,34 +497,58 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   const redirectToCallback = (success: boolean) => {
-    const url = success ? redirectUrl.value : redirectUrlError.value
-    if (url) {
-      try {
-        const callbackUrl = new URL(url, window.location.origin)
-        callbackUrl.searchParams.set('orderId', orderId.value)
-        callbackUrl.searchParams.set('status', success ? 'success' : 'error')
-        callbackUrl.searchParams.set(
-          'paymentAmount',
-          paymentAmount.value.toString()
-        )
-        if (orderNotes.value) {
-          callbackUrl.searchParams.set(
-            'notes',
-            encodeURIComponent(orderNotes.value)
-          )
+    const externalUrl = success ? redirectUrl.value : redirectUrlError.value
+    const defaultPath = success ? '/order/success' : '/order/error'
+
+    let url = defaultPath
+
+    if (externalUrl) {
+      const isAbsoluteUrl =
+        externalUrl.startsWith('http://') || externalUrl.startsWith('https://')
+
+      if (isAbsoluteUrl) {
+        try {
+          const externalUrlObj = new URL(externalUrl)
+          const currentOrigin = window.location.origin
+          if (externalUrlObj.origin === currentOrigin) {
+            const pathname = externalUrlObj.pathname
+            if (pathname.startsWith('/order/')) {
+              url = pathname
+            }
+          }
+        } catch {
+          url = defaultPath
         }
-        window.location.href = callbackUrl.toString()
-      } catch {
-        const separator = url.includes('?') ? '&' : '?'
-        const params = new URLSearchParams()
-        params.set('orderId', orderId.value)
-        params.set('status', success ? 'success' : 'error')
-        params.set('paymentAmount', paymentAmount.value.toString())
-        if (orderNotes.value) {
-          params.set('notes', encodeURIComponent(orderNotes.value))
-        }
-        window.location.href = `${url}${separator}${params.toString()}`
+      } else if (externalUrl.startsWith('/order/')) {
+        url = externalUrl
       }
+    }
+
+    try {
+      const callbackUrl = new URL(url, window.location.origin)
+      callbackUrl.searchParams.set('orderId', orderId.value)
+      callbackUrl.searchParams.set('status', success ? 'success' : 'error')
+      callbackUrl.searchParams.set(
+        'paymentAmount',
+        paymentAmount.value.toString()
+      )
+      if (orderNotes.value) {
+        callbackUrl.searchParams.set(
+          'notes',
+          encodeURIComponent(orderNotes.value)
+        )
+      }
+      window.location.href = callbackUrl.toString()
+    } catch {
+      const separator = url.includes('?') ? '&' : '?'
+      const params = new URLSearchParams()
+      params.set('orderId', orderId.value)
+      params.set('status', success ? 'success' : 'error')
+      params.set('paymentAmount', paymentAmount.value.toString())
+      if (orderNotes.value) {
+        params.set('notes', encodeURIComponent(orderNotes.value))
+      }
+      window.location.href = `${url}${separator}${params.toString()}`
     }
   }
 
