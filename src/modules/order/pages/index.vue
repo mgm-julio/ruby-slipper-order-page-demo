@@ -68,6 +68,7 @@ watch(
       <VRow
         class="align-stretch"
         :class="$vuetify.display.smAndDown ? 'flex-grow-1 ma-0' : ''"
+        style="min-height: 0"
       >
         <VCol
           v-if="currentStep === 0"
@@ -76,11 +77,12 @@ watch(
           :order="$vuetify.display.mdAndUp ? 1 : 2"
           class="d-flex mb-4 mb-md-0"
           :class="$vuetify.display.mdAndUp ? 'pe-md-2' : ''"
+          style="min-height: 0"
         >
           <VCard
             class="pa-4 pa-sm-6 pa-md-8 pa-lg-12 w-100 d-flex flex-column"
             :class="$vuetify.display.smAndDown ? 'h-100' : 'h-100'"
-            style="min-height: 0"
+            style="min-height: 0; max-height: 100%"
           >
             <div class="mb-6 mb-md-8 flex-shrink-0">
               <div class="d-flex align-center gap-2 mb-2">
@@ -94,8 +96,13 @@ watch(
             </div>
 
             <div
-              class="flex-grow-1 overflow-y-auto mb-4 mb-md-6"
-              style="min-height: 0; overflow-y: auto"
+              class="flex-grow-1 mb-4 mb-md-6"
+              :style="{
+                minHeight: 0,
+                maxHeight: $vuetify.display.smAndDown ? '250px' : '400px',
+                overflowY: 'auto',
+                overflowX: 'hidden',
+              }"
             >
               <div
                 v-for="(item, index) in items"

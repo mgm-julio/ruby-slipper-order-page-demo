@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useOrderStore } from '@/modules/order/stores/order'
+import { storeToRefs } from 'pinia'
+
 definePage({
   meta: {
     layout: 'blank',
@@ -7,6 +10,8 @@ definePage({
 })
 
 const route = useRoute()
+const orderStore = useOrderStore()
+const { items } = storeToRefs(orderStore)
 
 const orderId = computed(() => (route.query.orderId as string) || '')
 const status = computed(() => (route.query.status as string) || '')
@@ -60,6 +65,40 @@ const notes = computed(() => {
           <div class="d-flex align-center justify-space-between">
             <span class="text-body-1 font-weight-medium">Monto:</span>
             <span class="text-h6 font-weight-bold">${{ paymentAmount }}</span>
+          </div>
+        </div>
+
+        <div v-if="items.length > 0" class="mt-6">
+          <VDivider class="mb-4" />
+          <div class="d-flex align-center gap-2 mb-4">
+            <VIcon icon="tabler-shopping-cart" size="20" />
+            <span class="text-body-1 font-weight-medium">Items del pedido:</span>
+          </div>
+          <div
+            class="text-start"
+            style="max-height: 300px; overflow-y: auto; overflow-x: hidden"
+          >
+            <div
+              v-for="(item, index) in items"
+              :key="index"
+              class="d-flex align-start justify-space-between mb-3"
+            >
+              <div class="flex-grow-1 pe-2">
+                <div class="d-flex align-center gap-2 text-body-2 font-weight-medium mb-1">
+                  <VIcon icon="tabler-package" size="16" />
+                  <span class="text-wrap">{{ item.name }}</span>
+                </div>
+                <div class="text-body-2 text-medium-emphasis">
+                  {{ item.quantity }} × ${{ (item.itemTotal / item.quantity).toFixed(2) }}
+                  <span v-if="item.modifiers.length > 0" class="d-block">
+                    ({{ item.modifiers.map(m => m.name).join(', ') }})
+                  </span>
+                </div>
+              </div>
+              <div class="text-body-2 font-weight-medium flex-shrink-0">
+                ${{ item.itemTotal.toFixed(2) }}
+              </div>
+            </div>
           </div>
         </div>
 
