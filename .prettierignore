@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Generated files
+*.d.ts
+auto-imports.d.ts
+components.d.ts
+typed-router.d.ts
+
+# Lock files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Config files that should not be formatted
+*.config.js
+*.config.ts
+vite.config.ts
+
+# Documentation
+README.md
+CHANGELOG.md
+
+# Other
+.env*

@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "editorconfig.editorconfig",
+    "xabikos.javascriptsnippets",
+    "github.vscode-pull-request-github",
+    "vue.volar",
+    "cipchk.cssrem",
+    "matijao.vue-nuxt-snippets",
+    "dongido.sync-env"
+  ]
+}

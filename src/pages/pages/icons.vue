@@ -1,0 +1,177 @@
+<script lang="ts" setup>
+const iconsList = [
+  'tabler-soup',
+  'tabler-gift',
+  'tabler-logout',
+  'tabler-heart',
+  'tabler-radio',
+  'tabler-microphone',
+  'tabler-palette',
+  'tabler-diamond',
+  'tabler-gas-station',
+  'tabler-mail',
+  'tabler-code',
+  'tabler-chair-director',
+  'tabler-key',
+  'tabler-bell',
+  'tabler-bike',
+  'tabler-flask',
+  'tabler-phone',
+  'tabler-compass',
+  'tabler-note',
+  'tabler-device-laptop',
+  'tabler-exclamation-circle',
+  'tabler-fridge',
+  'tabler-link',
+  'tabler-first-aid-kit',
+  'tabler-calendar',
+  'tabler-pencil',
+  'tabler-id-badge-2',
+  'tabler-basket',
+  'tabler-cake',
+  'tabler-camera',
+  'tabler-music',
+  'tabler-moon',
+  'tabler-leaf',
+  'tabler-circle-plus',
+  'tabler-bulb',
+  'tabler-login',
+  'tabler-circle-minus',
+  'tabler-folder',
+  'tabler-device-cctv',
+  'tabler-play',
+  'tabler-layout-grid',
+  'tabler-car',
+  'tabler-brush',
+  'tabler-home',
+  'tabler-bookmark',
+  'tabler-send',
+  'tabler-news',
+  'tabler-headphones',
+  'tabler-device-mobile',
+  'tabler-briefcase',
+  'tabler-directions',
+  'tabler-urgent',
+  'tabler-shopping-cart',
+  'tabler-barbell',
+  'tabler-mood-smile',
+  'tabler-rosette-discount-check',
+  'tabler-glass-full',
+  'tabler-crop',
+  'tabler-ball-football',
+  'tabler-abacus',
+  'tabler-affiliate',
+  'tabler-archive',
+  'tabler-door-exit',
+  'tabler-cut',
+  'tabler-playlist-add',
+  'tabler-activity',
+  'tabler-cube',
+  'tabler-battery',
+  'tabler-qrcode',
+  'tabler-arrow-back',
+  'tabler-cloud',
+  'tabler-library',
+  'tabler-download',
+  'tabler-terminal',
+  'tabler-building-castle',
+  'tabler-paint',
+  'tabler-tool',
+  'tabler-help-circle',
+  'tabler-train',
+  'tabler-radar',
+  'tabler-trash',
+  'tabler-candle',
+  'tabler-receipt',
+  'tabler-clipboard',
+  'tabler-shield',
+  'tabler-book',
+  'tabler-edit',
+  'tabler-pointer',
+  'tabler-device-desktop',
+  'tabler-zoom-in',
+  'tabler-package',
+  'tabler-upload',
+  'tabler-coffee',
+  'tabler-filter',
+  'tabler-wifi',
+  'tabler-device-gamepad',
+  'tabler-globe',
+  'tabler-star',
+  'tabler-eye-dotted',
+  'tabler-chart-line',
+  'tabler-brightness',
+  'tabler-map',
+  'tabler-bolt',
+  'tabler-run',
+  'tabler-settings',
+  'tabler-sun',
+  'tabler-stopwatch',
+  'tabler-video',
+  'tabler-medal',
+  'tabler-messages',
+  'tabler-mail-opened',
+  'tabler-meteor',
+  'tabler-chalkboard',
+  'tabler-file',
+  'tabler-crown',
+  'tabler-mood-wink',
+  'tabler-ball-tennis',
+  'tabler-lego',
+  'tabler-plug',
+  'tabler-building-arch',
+  'tabler-cookie',
+  'tabler-slice',
+  'tabler-chart-pie',
+  'tabler-bulb',
+  'tabler-user',
+  'tabler-x',
+  'tabler-bandage',
+  'tabler-cup',
+  'tabler-timezone',
+  'tabler-planet',
+  'tabler-cut',
+  'tabler-world',
+  'tabler-checks',
+  'tabler-bone',
+]
+</script>
+
+<template>
+  <div>
+    <div class="d-flex align-center flex-wrap">
+      <VCard
+        v-for="icon in iconsList"
+        :key="icon"
+        class="mb-6 me-6"
+      >
+        <VCardText class="py-3 px-4">
+          <VIcon
+            size="30"
+            :icon="icon"
+          />
+        </VCardText>
+
+        <!-- tooltips -->
+        <VTooltip
+          location="top"
+          activator="parent"
+        >
+          {{ icon }}
+        </VTooltip>
+      </VCard>
+    </div>
+
+    <!-- more icons -->
+    <div class="text-center">
+      <VBtn
+        href="https://tabler.io/icons"
+        rel="noopener noreferrer"
+        color="primary"
+        target="_blank"
+      >
+        View All Tabler Icons
+      </VBtn>
+    </div>
+  </div>
+</template>
