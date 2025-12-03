@@ -88,14 +88,27 @@ const cardTypeIcon = computed(() => {
 
 const formatCardNumber = (value: string): string => {
   const cleaned = value.replace(/\s/g, '').replace(/\D/g, '')
-  const formatted = cleaned.match(/.{1,4}/g)?.join(' ') || cleaned
-  return formatted.slice(0, 19)
+  if (cleaned.length === 0) {
+    return ''
+  }
+  const maxLength = 16
+  const limited = cleaned.slice(0, maxLength)
+  const formatted = limited.match(/.{1,4}/g)?.join(' ') || limited
+  return formatted
 }
 
 const formatExpiry = (value: string): string => {
   const cleaned = value.replace(/\D/g, '')
+  if (cleaned.length === 0) {
+    return ''
+  }
   if (cleaned.length >= 2) {
-    return `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}`
+    const month = cleaned.slice(0, 2)
+    const year = cleaned.slice(2, 4)
+    if (cleaned.length > 2) {
+      return `${month}/${year}`
+    }
+    return `${month}`
   }
   return cleaned
 }
@@ -105,18 +118,30 @@ const formatCvv = (value: string): string => {
 }
 
 const cardNumberValidator = (value: string) => {
-  if (!value) {
+  if (!value || !value.trim()) {
     return 'Card number is required'
   }
   const cleaned = value.replace(/\s/g, '')
-  if (cleaned.length < 13 || cleaned.length > 19) {
-    return 'Card number must be between 13 and 19 digits'
+  if (!/^\d+$/.test(cleaned)) {
+    return 'Card number must contain only digits'
+  }
+  if (cleaned.length < 13) {
+    return 'Card number must have at least 13 digits'
+  }
+  if (cleaned.length < 15) {
+    return 'Card number must have at least 15 digits'
+  }
+  if (cleaned.length > 16) {
+    return 'Card number must have at most 16 digits'
+  }
+  if (cleaned.length === 14) {
+    return 'Card number must have 15 or 16 digits'
   }
   return true
 }
 
 const expiryValidator = (value: string) => {
-  if (!value) {
+  if (!value || !value.trim()) {
     return 'Expiry date is required'
   }
   const match = value.match(/^(\d{2})\/(\d{2})$/)
@@ -125,35 +150,55 @@ const expiryValidator = (value: string) => {
   }
   const month = parseInt(match[1], 10)
   const year = parseInt(match[2], 10)
+  if (isNaN(month) || isNaN(year)) {
+    return 'Invalid date format'
+  }
   if (month < 1 || month > 12) {
     return 'Month must be between 01 and 12'
   }
-  const currentYear = new Date().getFullYear() % 100
-  const currentMonth = new Date().getMonth() + 1
-  if (year < currentYear || (year === currentYear && month < currentMonth)) {
+  const currentDate = new Date()
+  const currentYear = currentDate.getFullYear() % 100
+  const currentMonth = currentDate.getMonth() + 1
+  const fullYear = 2000 + year
+  const currentFullYear = currentDate.getFullYear()
+
+  if (
+    fullYear < currentFullYear ||
+    (fullYear === currentFullYear && month < currentMonth)
+  ) {
     return 'Card has expired'
   }
   return true
 }
 
 const cvvValidator = (value: string) => {
-  if (!value) {
+  if (!value || !value.trim()) {
     return 'CVC is required'
   }
-  if (value.length < 3 || value.length > 4) {
-    return 'CVC must be 3 or 4 digits'
+  if (!/^\d+$/.test(value)) {
+    return 'CVC must contain only digits'
+  }
+  if (value.length < 3) {
+    return 'CVC must have at least 3 digits'
+  }
+  if (value.length > 4) {
+    return 'CVC must have at most 4 digits'
   }
   return true
 }
 
 const cardNameValidator = (value: string) => {
-  if (!value) {
+  if (!value || !value.trim()) {
     return 'Cardholder name is required'
   }
-  if (value.trim().length < 2) {
+  const trimmed = value.trim()
+  if (trimmed.length < 2) {
     return 'Name must be at least 2 characters'
   }
-  if (!/^[a-zA-Z\s'-]+$/.test(value)) {
+  if (trimmed.length > 50) {
+    return 'Name must be at most 50 characters'
+  }
+  if (!/^[a-zA-Z\s'-]+$/.test(trimmed)) {
     return 'Name can only contain letters, spaces, hyphens and apostrophes'
   }
   return true
@@ -173,38 +218,10 @@ const nextStep = async () => {
 
   isProcessing.value = true
 
-  const paymentSuccess = await orderStore.processPayment()
-
-  if (paymentSuccess) {
-    emit('update:currentStep', prop.currentStep ? prop.currentStep + 1 : 1)
-  } else {
-    orderStore.redirectToCallback(false)
-    return
-  }
+  await orderStore.processPayment()
 
   isProcessing.value = false
 }
-
-watch(
-  () => cardFormData.value.cardNumber,
-  newValue => {
-    cardFormData.value.cardNumber = formatCardNumber(newValue)
-  }
-)
-
-watch(
-  () => cardFormData.value.cardExpiry,
-  newValue => {
-    cardFormData.value.cardExpiry = formatExpiry(newValue)
-  }
-)
-
-watch(
-  () => cardFormData.value.cardCvv,
-  newValue => {
-    cardFormData.value.cardCvv = formatCvv(newValue)
-  }
-)
 </script>
 
 <template>
@@ -212,166 +229,216 @@ watch(
     <VWindow v-model="selectedPaymentMethod" :touch="false">
       <VWindowItem value="card">
         <VForm ref="formRef" @submit.prevent="() => {}">
-          <div class="mb-4 mb-md-6">
-            <div class="d-flex align-center gap-2 mb-1">
+          <div class="mb-3">
+            <VRow>
+              <VCol cols="12">
+                <div class="app-text-field flex-grow-1">
+                  <VLabel
+                    for="card-number"
+                    class="mb-1 text-body-2 text-md-body-2 text-wrap font-weight-medium"
+                    style="line-height: 15px"
+                  >
+                    Card Information
+                    <span class="text-error ms-1">*</span>
+                  </VLabel>
+                  <VTextField
+                    id="card-number"
+                    :model-value="cardFormData.cardNumber"
+                    @update:model-value="(value: string) => { cardFormData.cardNumber = formatCardNumber(value) }"
+                    placeholder="1234 5678 9012 3456"
+                    density="compact"
+                    variant="outlined"
+                    color="warning"
+                    :rules="[cardNumberValidator]"
+                    maxlength="19"
+                    :size="$vuetify.display.smAndDown ? 'default' : 'default'"
+                  >
+                    <template v-if="cardTypeIcon" #append-inner>
+                      <VImg
+                        :src="cardTypeIcon"
+                        width="40"
+                        height="24"
+                        contain
+                      />
+                    </template>
+                  </VTextField>
+                </div>
+              </VCol>
+
+              <VCol cols="12" sm="6">
+                <div class="app-text-field flex-grow-1">
+                  <VLabel
+                    for="card-expiry"
+                    class="mb-1 text-body-2 text-md-body-2 text-wrap font-weight-medium"
+                    style="line-height: 15px"
+                  >
+                    Expiry Date
+                    <span class="text-error ms-1">*</span>
+                  </VLabel>
+                  <VTextField
+                    id="card-expiry"
+                    :model-value="cardFormData.cardExpiry"
+                    @update:model-value="(value: string) => { cardFormData.cardExpiry = formatExpiry(value) }"
+                    placeholder="MM/YY"
+                    density="compact"
+                    variant="outlined"
+                    color="warning"
+                    :rules="[expiryValidator]"
+                    maxlength="5"
+                    :size="$vuetify.display.smAndDown ? 'default' : 'default'"
+                  />
+                </div>
+              </VCol>
+
+              <VCol cols="12" sm="6">
+                <div class="app-text-field flex-grow-1">
+                  <VLabel
+                    for="card-cvv"
+                    class="mb-1 text-body-2 text-md-body-2 text-wrap font-weight-medium"
+                    style="line-height: 15px"
+                  >
+                    CVC <span class="text-error ms-1">*</span>
+                  </VLabel>
+                  <VTextField
+                    id="card-cvv"
+                    :model-value="cardFormData.cardCvv"
+                    @update:model-value="(value: string) => { cardFormData.cardCvv = formatCvv(value) }"
+                    placeholder="123"
+                    density="compact"
+                    variant="outlined"
+                    color="warning"
+                    :rules="[cvvValidator]"
+                    maxlength="4"
+                    :size="$vuetify.display.smAndDown ? 'default' : 'default'"
+                  >
+                    <template #append-inner>
+                      <VTooltip
+                        text="Card Verification Value"
+                        location="bottom"
+                      >
+                        <template #activator="{ props: tooltipProps }">
+                          <VIcon
+                            v-bind="tooltipProps"
+                            size="20"
+                            icon="tabler-help-circle"
+                            class="text-disabled"
+                          />
+                        </template>
+                      </VTooltip>
+                    </template>
+                  </VTextField>
+                </div>
+              </VCol>
+
+              <VCol cols="12">
+                <div class="app-text-field flex-grow-1">
+                  <VLabel
+                    for="card-name"
+                    class="mb-1 text-body-2 text-md-body-2 text-wrap font-weight-medium"
+                    style="line-height: 15px"
+                  >
+                    Cardholder Name <span class="text-error ms-1">*</span>
+                  </VLabel>
+                  <VTextField
+                    id="card-name"
+                    v-model="cardFormData.cardName"
+                    placeholder="Full name"
+                    density="compact"
+                    variant="outlined"
+                    color="warning"
+                    :rules="[cardNameValidator]"
+                    :size="$vuetify.display.smAndDown ? 'default' : 'default'"
+                  />
+                </div>
+              </VCol>
+            </VRow>
+          </div>
+
+          <div class="mb-3">
+            <div class="d-flex align-center gap-2 mb-2">
               <VIcon
-                icon="tabler-wallet"
-                :size="$vuetify.display.smAndDown ? 18 : 20"
+                icon="tabler-note"
+                :size="$vuetify.display.smAndDown ? 20 : 24"
+                color="warning"
               />
-              <h6 class="text-subtitle-1 text-md-h6 mb-0">Payment method</h6>
+              <span class="text-body-2 text-md-body-2 font-weight-medium"
+                >Order Notes (Optional)</span
+              >
             </div>
-            <p class="text-body-2">
-              Enter your card information to complete the payment
+            <AppTextarea
+              v-model="orderNotes"
+              placeholder="Add any special instructions or notes for your order"
+              density="compact"
+              :rows="$vuetify.display.smAndDown ? 2 : 2"
+              variant="outlined"
+              color="warning"
+            />
+          </div>
+
+          <div class="mb-3">
+            <VCheckbox
+              v-model="cardFormData.isCardSave"
+              density="compact"
+              hide-details
+              color="warning"
+            >
+              <template #label>
+                <span class="text-body-2 text-md-body-2">
+                  Save my data for a faster checkout process
+                </span>
+              </template>
+            </VCheckbox>
+            <p
+              class="text-body-2 text-md-body-2 mt-1 ms-8 text-medium-emphasis"
+            >
+              Pay securely on this website and in all stores that accept this
+              payment method.
             </p>
           </div>
 
-          <VRow>
-            <VCol cols="12">
-              <div class="app-text-field flex-grow-1">
-                <VLabel
-                  for="card-number"
-                  class="mb-1 text-body-1 text-wrap"
-                  style="line-height: 15px"
-                >
-                  Card information <span class="text-error ms-1">*</span>
-                </VLabel>
-                <VTextField
-                  id="card-number"
-                  v-model="cardFormData.cardNumber"
-                  placeholder="1234 1234 1234 1234"
-                  density="comfortable"
-                  variant="outlined"
-                  :rules="[cardNumberValidator]"
-                  maxlength="19"
-                >
-                  <template v-if="cardTypeIcon" #append-inner>
-                    <VImg :src="cardTypeIcon" width="40" height="24" contain />
-                  </template>
-                </VTextField>
-              </div>
-            </VCol>
-
-            <VCol cols="12" sm="6">
-              <div class="app-text-field flex-grow-1">
-                <VLabel
-                  for="card-expiry"
-                  class="mb-1 text-body-1 text-wrap"
-                  style="line-height: 15px"
-                >
-                  MM/YY <span class="text-error ms-1">*</span>
-                </VLabel>
-                <VTextField
-                  id="card-expiry"
-                  v-model="cardFormData.cardExpiry"
-                  placeholder="MM/YY"
-                  density="comfortable"
-                  variant="outlined"
-                  :rules="[expiryValidator]"
-                  maxlength="5"
-                />
-              </div>
-            </VCol>
-
-            <VCol cols="12" sm="6">
-              <div class="app-text-field flex-grow-1">
-                <VLabel
-                  for="card-cvv"
-                  class="mb-1 text-body-1 text-wrap"
-                  style="line-height: 15px"
-                >
-                  CVC <span class="text-error ms-1">*</span>
-                </VLabel>
-                <VTextField
-                  id="card-cvv"
-                  v-model="cardFormData.cardCvv"
-                  placeholder="123"
-                  density="comfortable"
-                  variant="outlined"
-                  :rules="[cvvValidator]"
-                  maxlength="4"
-                >
-                  <template #append-inner>
-                    <VTooltip text="Card Verification Value" location="bottom">
-                      <template #activator="{ props: tooltipProps }">
-                        <VIcon
-                          v-bind="tooltipProps"
-                          size="18"
-                          icon="tabler-help-circle"
-                          class="text-disabled"
-                        />
-                      </template>
-                    </VTooltip>
-                  </template>
-                </VTextField>
-              </div>
-            </VCol>
-
-            <VCol cols="12">
-              <div class="app-text-field flex-grow-1">
-                <VLabel
-                  for="card-name"
-                  class="mb-1 text-body-1 text-wrap"
-                  style="line-height: 15px"
-                >
-                  Cardholder name <span class="text-error ms-1">*</span>
-                </VLabel>
-                <VTextField
-                  id="card-name"
-                  v-model="cardFormData.cardName"
-                  placeholder="Full name"
-                  density="comfortable"
-                  variant="outlined"
-                  :rules="[cardNameValidator]"
-                />
-              </div>
-            </VCol>
-
-            <VCol cols="12">
-              <div class="d-flex align-center gap-2 mb-2">
+          <VCard class="mb-0" color="warning" variant="tonal">
+            <VCardText class="pa-2 pa-md-3">
+              <div class="d-flex align-center justify-space-between mb-2">
+                <div>
+                  <div
+                    class="text-body-2 text-md-body-2 mb-1 text-high-emphasis"
+                  >
+                    Total to Pay
+                  </div>
+                  <div
+                    class="text-h6 text-md-h5 font-weight-bold text-high-emphasis"
+                  >
+                    ${{ prop.checkoutData.orderAmount.toFixed(2) }}
+                  </div>
+                </div>
                 <VIcon
-                  icon="tabler-note"
-                  :size="$vuetify.display.smAndDown ? 16 : 18"
+                  icon="tabler-currency-dollar"
+                  :size="$vuetify.display.smAndDown ? 28 : 32"
+                  color="warning"
                 />
-                <span class="text-body-1">Order notes (optional)</span>
               </div>
-              <AppTextarea
-                v-model="orderNotes"
-                placeholder="Add any special instructions or notes for your order"
-                density="comfortable"
-                :rows="$vuetify.display.smAndDown ? 2 : 3"
-              />
-            </VCol>
-
-            <VCol cols="12">
-              <VCheckbox
-                v-model="cardFormData.isCardSave"
-                density="comfortable"
-                hide-details
-              >
-                <template #label>
-                  <span class="text-body-2">
-                    Save my data for a faster checkout process
-                  </span>
-                </template>
-              </VCheckbox>
-              <p class="text-body-2 mt-2 ms-8">
-                Pay securely on this website and in all stores that accept this
-                payment method.
-              </p>
-            </VCol>
-
-            <VCol cols="12" class="mt-4">
               <VBtn
                 block
                 :size="$vuetify.display.smAndDown ? 'default' : 'large'"
+                color="warning"
+                variant="elevated"
                 :loading="isProcessing || orderStore.isLoading"
                 :disabled="!isFormValid || isProcessing || orderStore.isLoading"
                 @click="nextStep"
+                class="font-weight-bold text-high-emphasis"
+                style="
+                  cursor: pointer;
+                  transition: transform 0.2s ease, box-shadow 0.2s ease;
+                "
+                @mouseenter="(e: MouseEvent) => { if (!isProcessing && !orderStore.isLoading && isFormValid) { (e.currentTarget as HTMLElement).style.transform = 'scale(1.02)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'; } }"
+                @mouseleave="(e: MouseEvent) => { (e.currentTarget as HTMLElement).style.transform = 'scale(1)'; (e.currentTarget as HTMLElement).style.boxShadow = ''; }"
               >
-                Pay ${{ prop.checkoutData.orderAmount.toFixed(2) }}
+                <span class="text-high-emphasis"
+                  >Pay ${{ prop.checkoutData.orderAmount.toFixed(2) }}</span
+                >
               </VBtn>
-            </VCol>
-          </VRow>
+            </VCardText>
+          </VCard>
         </VForm>
       </VWindowItem>
     </VWindow>

@@ -428,12 +428,15 @@ export const useOrderStore = defineStore('order', () => {
       isLoading.value = true
       const response = await $api.post(`/orders/${orderId.value}/pay`)
 
-      if (response && response.status === 'completed') {
+      if (response) {
+        redirectToCallback(true)
         return true
       }
 
+      redirectToCallback(false)
       return false
     } catch {
+      redirectToCallback(false)
       return false
     } finally {
       isLoading.value = false
