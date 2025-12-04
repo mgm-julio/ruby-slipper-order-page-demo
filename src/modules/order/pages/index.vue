@@ -29,15 +29,48 @@ const {
   paymentAmount,
   items,
   hasValidOrderId,
+  isLoading,
 } = storeToRefs(orderStore)
+
+const isInitialLoading = ref(true)
 
 const subtotal = computed(() => {
   return items.value.reduce((sum, item) => sum + item.itemTotal, 0)
 })
 
+const showSkeletons = computed(() => {
+  return isLoading.value || isInitialLoading.value
+})
+
 onMounted(async () => {
+  isInitialLoading.value = true
+  
+  const hasOrderId = !!(route.query.orderId as string)
+  
+  if (hasOrderId) {
+    watch(
+      () => orderStore.isLoading,
+      (loading) => {
+        if (!loading && orderStore.hasValidOrderId) {
+          isInitialLoading.value = false
+        }
+      },
+      { immediate: true }
+    )
+  }
+  
   const queryParams = await orderStore.parseQueryParams(route.query)
-  orderStore.initializeFromQueryParams(queryParams)
+  const isValid = orderStore.initializeFromQueryParams(queryParams)
+  
+  if (!isValid) {
+    const orderIdParam = (route.query.orderId as string) || ''
+    router.push({
+      path: '/order/invalid',
+      query: orderIdParam ? { orderId: orderIdParam } : {},
+    })
+  } else if (!hasOrderId) {
+    isInitialLoading.value = false
+  }
 })
 
 watch(
@@ -45,7 +78,11 @@ watch(
   newStep => {
     if (newStep === 1) {
       if (!hasValidOrderId.value) {
-        router.push('/')
+        const orderIdParam = orderId.value || ''
+        router.push({
+          path: '/order/invalid',
+          query: orderIdParam ? { orderId: orderIdParam } : {},
+        })
         return
       }
 
@@ -136,7 +173,10 @@ watch(
                   Order Summary
                 </h4>
               </div>
-              <div class="text-body-1 text-md-h6 text-medium-emphasis">
+              <div v-if="showSkeletons" class="text-body-1 text-md-h6">
+                <VSkeletonLoader type="text" width="60%" />
+              </div>
+              <div v-else class="text-body-1 text-md-h6 text-medium-emphasis">
                 Order #{{ orderId }}
               </div>
             </div>
@@ -152,74 +192,118 @@ watch(
                 overflowX: 'hidden',
               }"
             >
-              <VCard
-                v-for="(item, index) in items"
-                :key="index"
-                class="mb-2 mb-md-2"
-                elevation="2"
-              >
-                <VCardText class="pa-2 pa-md-2">
-                  <div class="d-flex align-start justify-space-between">
-                    <div class="flex-grow-1 pe-3">
-                      <div
-                        class="d-flex align-center gap-2 text-h6 text-md-h5 font-weight-bold mb-2"
-                      >
-                        <VIcon
-                          icon="tabler-tools-kitchen-2"
-                          :size="$vuetify.display.smAndDown ? 22 : 26"
-                          color="warning"
+              <template v-if="showSkeletons">
+                <VCard
+                  v-for="i in 3"
+                  :key="i"
+                  class="mb-2 mb-md-2"
+                  elevation="2"
+                >
+                  <VCardText class="pa-2 pa-md-2">
+                    <div class="d-flex align-start justify-space-between">
+                      <div class="flex-grow-1 pe-3">
+                        <VSkeletonLoader
+                          type="heading"
+                          class="mb-2"
+                          :width="$vuetify.display.smAndDown ? '70%' : '80%'"
                         />
-                        <span class="text-wrap">{{ item.name }}</span>
+                        <VSkeletonLoader
+                          type="text"
+                          :width="$vuetify.display.smAndDown ? '50%' : '60%'"
+                        />
+                      </div>
+                      <VSkeletonLoader
+                        type="text"
+                        width="60px"
+                        class="flex-shrink-0"
+                      />
+                    </div>
+                  </VCardText>
+                </VCard>
+              </template>
+              <template v-else>
+                <VCard
+                  v-for="(item, index) in items"
+                  :key="index"
+                  class="mb-2 mb-md-2"
+                  elevation="2"
+                >
+                  <VCardText class="pa-2 pa-md-2">
+                    <div class="d-flex align-start justify-space-between">
+                      <div class="flex-grow-1 pe-3">
+                        <div
+                          class="d-flex align-center gap-2 text-h6 text-md-h5 font-weight-bold mb-2"
+                        >
+                          <VIcon
+                            icon="tabler-tools-kitchen-2"
+                            :size="$vuetify.display.smAndDown ? 22 : 26"
+                            color="warning"
+                          />
+                          <span class="text-wrap">{{ item.name }}</span>
+                        </div>
+                        <div
+                          class="text-body-1 text-md-h6 text-medium-emphasis mb-1"
+                        >
+                          {{ item.quantity }} × ${{
+                            (item.itemTotal / item.quantity).toFixed(2)
+                          }}
+                          <span
+                            v-if="item.modifiers.length > 0"
+                            class="d-block d-md-inline ms-1"
+                          >
+                            ({{ item.modifiers.map(m => m.name).join(', ') }})
+                          </span>
+                        </div>
                       </div>
                       <div
-                        class="text-body-1 text-md-h6 text-medium-emphasis mb-1"
+                        class="text-h5 text-md-h4 font-weight-bold flex-shrink-0 text-warning"
                       >
-                        {{ item.quantity }} × ${{
-                          (item.itemTotal / item.quantity).toFixed(2)
-                        }}
-                        <span
-                          v-if="item.modifiers.length > 0"
-                          class="d-block d-md-inline ms-1"
-                        >
-                          ({{ item.modifiers.map(m => m.name).join(', ') }})
-                        </span>
+                        ${{ item.itemTotal.toFixed(2) }}
                       </div>
                     </div>
-                    <div
-                      class="text-h5 text-md-h4 font-weight-bold flex-shrink-0 text-warning"
-                    >
-                      ${{ item.itemTotal.toFixed(2) }}
-                    </div>
-                  </div>
-                </VCardText>
-              </VCard>
+                  </VCardText>
+                </VCard>
+              </template>
             </div>
 
             <div class="flex-shrink-0 mt-auto">
               <VCard class="mb-2 mb-md-2" color="warning" variant="tonal">
                 <VCardText class="pa-2 pa-md-2">
-                  <div class="d-flex align-center justify-space-between mb-1">
-                    <span
-                      class="text-body-1 text-md-h6 font-weight-medium text-high-emphasis"
-                      >Subtotal</span
-                    >
-                    <span
-                      class="text-body-1 text-md-h6 font-weight-medium text-high-emphasis"
-                      >${{ subtotal.toFixed(2) }}</span
-                    >
-                  </div>
-                  <VDivider class="my-1" />
-                  <div class="d-flex align-center justify-space-between mt-1">
-                    <span
-                      class="text-h6 text-md-h5 font-weight-bold text-high-emphasis"
-                      >Total</span
-                    >
-                    <span
-                      class="text-h5 text-md-h4 font-weight-bold text-high-emphasis"
-                    >
-                      ${{ paymentAmount.toFixed(2) }}
-                    </span>
-                  </div>
+                  <template v-if="showSkeletons">
+                    <div class="d-flex align-center justify-space-between mb-1">
+                      <VSkeletonLoader type="text" width="30%" />
+                      <VSkeletonLoader type="text" width="20%" />
+                    </div>
+                    <VDivider class="my-1" />
+                    <div class="d-flex align-center justify-space-between mt-1">
+                      <VSkeletonLoader type="text" width="25%" />
+                      <VSkeletonLoader type="text" width="25%" />
+                    </div>
+                  </template>
+                  <template v-else>
+                    <div class="d-flex align-center justify-space-between mb-1">
+                      <span
+                        class="text-body-1 text-md-h6 font-weight-medium text-high-emphasis"
+                        >Subtotal</span
+                      >
+                      <span
+                        class="text-body-1 text-md-h6 font-weight-medium text-high-emphasis"
+                        >${{ subtotal.toFixed(2) }}</span
+                      >
+                    </div>
+                    <VDivider class="my-1" />
+                    <div class="d-flex align-center justify-space-between mt-1">
+                      <span
+                        class="text-h6 text-md-h5 font-weight-bold text-high-emphasis"
+                        >Total</span
+                      >
+                      <span
+                        class="text-h5 text-md-h4 font-weight-bold text-high-emphasis"
+                      >
+                        ${{ paymentAmount.toFixed(2) }}
+                      </span>
+                    </div>
+                  </template>
                 </VCardText>
               </VCard>
 
@@ -231,9 +315,14 @@ watch(
                       :size="$vuetify.display.smAndDown ? 22 : 26"
                       color="warning"
                     />
-                    <div class="text-break font-weight-medium">
-                      {{ phoneNumber }}
-                    </div>
+                    <template v-if="showSkeletons">
+                      <VSkeletonLoader type="text" width="60%" />
+                    </template>
+                    <template v-else>
+                      <div class="text-break font-weight-medium">
+                        {{ phoneNumber }}
+                      </div>
+                    </template>
                   </div>
                 </VCardText>
               </VCard>

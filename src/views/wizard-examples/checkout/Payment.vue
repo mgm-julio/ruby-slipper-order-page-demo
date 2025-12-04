@@ -367,7 +367,7 @@ const nextStep = async () => {
             </div>
             <AppTextarea
               v-model="orderNotes"
-              placeholder="Add any special instructions or notes for your order"
+              placeholder="e.g., No onions, extra sauce, leave at door"
               density="compact"
               :rows="$vuetify.display.smAndDown ? 2 : 2"
               variant="outlined"
