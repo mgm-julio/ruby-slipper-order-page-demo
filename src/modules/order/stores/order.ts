@@ -151,6 +151,13 @@ export const useOrderStore = defineStore('order', () => {
       const response = await $api.post(`/orders/${orderId.value}/pay`)
 
       if (response && response.status === 'completed') {
+        isOrderCompleted.value = true
+        if (response.items && Array.isArray(response.items) && response.items.length > 0) {
+          items.value = response.items
+        }
+        if (response.total && response.total > 0) {
+          paymentAmount.value = response.total
+        }
         redirectToCallback(true)
         return true
       }
