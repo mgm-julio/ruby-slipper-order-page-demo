@@ -21,6 +21,7 @@ export const useOrderStore = defineStore('order', () => {
   const redirectUrl = ref<string>('')
   const redirectUrlError = ref<string>('')
   const isLoading = ref<boolean>(false)
+  const isOrderCompleted = ref<boolean>(false)
 
   const checkoutSteps = computed(() => [
     {
@@ -104,8 +105,11 @@ export const useOrderStore = defineStore('order', () => {
       isLoading.value = true
       const response = await $api.get(`/orders/${orderIdParam}`)
 
+      if (!response) {
+        return null
+      }
+
       if (
-        response &&
         response.orderId &&
         response.phoneNumber &&
         response.items &&
@@ -113,6 +117,10 @@ export const useOrderStore = defineStore('order', () => {
         response.items.length > 0 &&
         response.total > 0
       ) {
+        if (response.status === 'completed') {
+          isOrderCompleted.value = true
+        }
+
         return {
           orderId: response.orderId,
           phoneNumber: response.phoneNumber,
@@ -126,7 +134,7 @@ export const useOrderStore = defineStore('order', () => {
       }
 
       return null
-    } catch {
+    } catch (error) {
       return null
     } finally {
       isLoading.value = false
@@ -142,7 +150,7 @@ export const useOrderStore = defineStore('order', () => {
       isLoading.value = true
       const response = await $api.post(`/orders/${orderId.value}/pay`)
 
-      if (response) {
+      if (response && response.status === 'completed') {
         redirectToCallback(true)
         return true
       }
@@ -172,6 +180,18 @@ export const useOrderStore = defineStore('order', () => {
       )
       if (backendData) {
         return backendData
+      }
+      if (isOrderCompleted.value) {
+        return {
+          orderId: orderId.value,
+          phoneNumber: phoneNumber.value,
+          items: items.value,
+          paymentAmount: paymentAmount.value,
+          subtotal: paymentAmount.value,
+          currency: 'USD',
+          redirectUrl: redirectUrl.value || '',
+          redirectUrlError: redirectUrlError.value || '',
+        }
       }
     }
 
@@ -283,6 +303,7 @@ export const useOrderStore = defineStore('order', () => {
     redirectUrl,
     redirectUrlError,
     isLoading,
+    isOrderCompleted,
     checkoutSteps,
     checkoutData,
     hasValidOrderId,

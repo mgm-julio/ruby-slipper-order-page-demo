@@ -12,13 +12,22 @@ definePage({
 
 const route = useRoute()
 const orderStore = useOrderStore()
-const { items } = storeToRefs(orderStore)
+const { items, paymentAmount: storePaymentAmount, orderId: storeOrderId } = storeToRefs(orderStore)
 
-const orderId = computed(() => (route.query.orderId as string) || '')
+const orderId = computed(() => (route.query.orderId as string) || storeOrderId.value || '')
 const status = computed(() => (route.query.status as string) || '')
 const paymentAmount = computed(() => {
-  const amount = route.query.paymentAmount as string
-  return amount ? parseFloat(amount).toFixed(2) : '0.00'
+  const queryAmount = route.query.paymentAmount as string
+  if (queryAmount) {
+    const parsed = parseFloat(queryAmount)
+    if (!isNaN(parsed) && parsed > 0) {
+      return parsed.toFixed(2)
+    }
+  }
+  if (storePaymentAmount.value > 0) {
+    return storePaymentAmount.value.toFixed(2)
+  }
+  return '0.00'
 })
 const notes = computed(() => {
   const notesParam = route.query.notes as string

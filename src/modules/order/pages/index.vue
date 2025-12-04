@@ -4,6 +4,7 @@ import ConfirmationContent from '@/views/wizard-examples/checkout/Confirmation.v
 import PaymentContent from '@/views/wizard-examples/checkout/Payment.vue'
 import { useConfigStore } from '@core/stores/config'
 import restaurantBg from '@images/pages/restaurant-bg.jpg'
+import { nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 
 definePage({
@@ -30,6 +31,7 @@ const {
   items,
   hasValidOrderId,
   isLoading,
+  isOrderCompleted,
 } = storeToRefs(orderStore)
 
 const isInitialLoading = ref(true)
@@ -47,28 +49,42 @@ onMounted(async () => {
   
   const hasOrderId = !!(route.query.orderId as string)
   
-  if (hasOrderId) {
-    watch(
-      () => orderStore.isLoading,
-      (loading) => {
-        if (!loading && orderStore.hasValidOrderId) {
-          isInitialLoading.value = false
-        }
-      },
-      { immediate: true }
-    )
-  }
-  
   const queryParams = await orderStore.parseQueryParams(route.query)
   const isValid = orderStore.initializeFromQueryParams(queryParams)
   
-  if (!isValid) {
+  if (!isValid && !orderStore.isOrderCompleted) {
     const orderIdParam = (route.query.orderId as string) || ''
     router.push({
       path: '/order/invalid',
       query: orderIdParam ? { orderId: orderIdParam } : {},
     })
-  } else if (!hasOrderId) {
+    return
+  }
+  
+  if (orderStore.isOrderCompleted) {
+    isInitialLoading.value = false
+    return
+  }
+  
+  if (hasOrderId) {
+    watch(
+      () => [orderStore.isLoading, orderStore.hasValidOrderId],
+      ([loading, valid]) => {
+        if (!loading && valid) {
+          nextTick(() => {
+            isInitialLoading.value = false
+          })
+        }
+      },
+      { immediate: true }
+    )
+    
+    await nextTick()
+    if (!orderStore.isLoading && orderStore.hasValidOrderId) {
+      isInitialLoading.value = false
+    }
+  } else {
+    await nextTick()
     isInitialLoading.value = false
   }
 })
@@ -347,31 +363,76 @@ watch(
               <div class="d-flex align-center gap-2 mb-1">
                 <VIcon
                   :icon="
-                    currentStep === 0
-                      ? 'tabler-credit-card'
-                      : 'tabler-circle-check'
+                    isOrderCompleted
+                      ? 'tabler-circle-check'
+                      : currentStep === 0
+                        ? 'tabler-credit-card'
+                        : 'tabler-circle-check'
                   "
                   :size="$vuetify.display.smAndDown ? 28 : 32"
-                  :color="currentStep === 0 ? 'warning' : 'success'"
+                  :color="isOrderCompleted ? 'success' : currentStep === 0 ? 'warning' : 'success'"
                 />
                 <h4 class="text-h4 text-md-h5 mb-0 font-weight-bold">
                   {{
-                    currentStep === 0
-                      ? 'Complete Your Payment'
-                      : 'Order Confirmation'
+                    isOrderCompleted
+                      ? 'Order Already Processed'
+                      : currentStep === 0
+                        ? 'Complete Your Payment'
+                        : 'Order Confirmation'
                   }}
                 </h4>
               </div>
               <p class="text-body-1 text-md-h6 text-medium-emphasis">
                 {{
-                  currentStep === 0
-                    ? 'Enter your payment details to complete your order'
-                    : 'Your order has been successfully processed'
+                  isOrderCompleted
+                    ? 'This order has already been processed and paid correctly'
+                    : currentStep === 0
+                      ? 'Enter your payment details to complete your order'
+                      : 'Your order has been successfully processed'
                 }}
               </p>
             </div>
 
-            <div class="flex-grow-1" style="min-height: 0; overflow-y: auto">
+            <div v-if="isOrderCompleted" class="flex-grow-1" style="min-height: 0; overflow-y: auto">
+              <VCard color="success" variant="tonal" elevation="2">
+                <VCardText class="pa-4 text-center">
+                  <VIcon
+                    icon="tabler-circle-check"
+                    :size="$vuetify.display.smAndDown ? 60 : 80"
+                    color="success"
+                    class="mb-3"
+                  />
+                  <h3 class="text-h5 text-md-h4 mb-2 font-weight-bold">
+                    Payment Completed
+                  </h3>
+                  <p class="text-body-1 text-md-h6 mb-4">
+                    This order has already been processed and paid successfully.
+                    No further action is required.
+                  </p>
+                  <VCard class="text-start mb-3" elevation="2">
+                    <VCardText class="pa-3">
+                      <div class="d-flex align-center justify-space-between mb-3">
+                        <span class="text-h6 text-md-h5 font-weight-medium"
+                          >Order ID:</span
+                        >
+                        <span class="text-h6 text-md-h5 font-weight-bold">{{
+                          orderId || 'N/A'
+                        }}</span>
+                      </div>
+                      <VDivider class="my-2" />
+                      <div class="d-flex align-center justify-space-between mt-3">
+                        <span class="text-h6 text-md-h5 font-weight-medium">Amount Paid:</span>
+                        <span class="text-h5 text-md-h4 font-weight-bold text-warning"
+                          >${{ paymentAmount.toFixed(2) }}</span
+                        >
+                      </div>
+                    </VCardText>
+                  </VCard>
+                </VCardText>
+              </VCard>
+            </div>
+
+            <div v-else class="flex-grow-1" style="min-height: 0; overflow-y: auto">
               <VWindow v-model="currentStep" :touch="false">
                 <VWindowItem>
                   <PaymentContent
